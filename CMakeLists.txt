@@ -1,29 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(serial)
 
-# Find catkin
-find_package(catkin REQUIRED)
-
 if(APPLE)
     find_library(IOKIT_LIBRARY IOKit)
     find_library(FOUNDATION_LIBRARY Foundation)
-endif()
-
-if(UNIX AND NOT APPLE)
+elseif(UNIX)
     # If Linux, add rt and pthread
     set(rt_LIBRARIES rt)
     set(pthread_LIBRARIES pthread)
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-        DEPENDS rt pthread
-    )
-else()
-    # Otherwise normal call
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-    )
 endif()
 
 ## Sources
@@ -47,10 +31,16 @@ else()
 endif()
 
 ## Add serial library
-add_library(${PROJECT_NAME} ${serial_SRCS})
+add_library(${PROJECT_NAME} SHARED ${serial_SRCS})
+target_include_directories(
+    ${PROJECT_NAME}
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} ${FOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
-elseif(UNIX)
+elseif(UNIX) 
     target_link_libraries(${PROJECT_NAME} rt pthread)
 else()
     target_link_libraries(${PROJECT_NAME} setupapi)
@@ -64,18 +54,20 @@ target_link_libraries(serial_example ${PROJECT_NAME})
 ## Include headers
 include_directories(include)
 
+include(GNUInstallDirs)
 ## Install executable
-install(TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+install(
+    TARGETS ${PROJECT_NAME}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} 
+        # -- Installing: /usr/local/lib/libserial.so
 )
 
 ## Install headers
-install(FILES include/serial/serial.h include/serial/v8stdint.h
-  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/serial)
-
-## Tests
-if(CATKIN_ENABLE_TESTING)
-    add_subdirectory(tests)
-endif()
+install(
+    FILES include/serial/serial.h include/serial/v8stdint.h 
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/serial
+        # -- Installing: /usr/local/include/serial/serial.h, v8stdint.h
+)

@@ -17,46 +17,45 @@ API Documentation: http://wjwwood.github.io/serial/doc/1.1.0/index.html
 ### Dependencies
 
 Required:
-* [catkin](http://www.ros.org/wiki/catkin) - cmake and Python based buildsystem
 * [cmake](http://www.cmake.org) - buildsystem
-* [Python](http://www.python.org) - scripting language
-  * [empy](http://www.alcyone.com/pyos/empy/) - Python templating library
-  * [catkin_pkg](http://pypi.python.org/pypi/catkin_pkg/) - Runtime Python library for catkin
-
-Optional (for documentation):
-* [Doxygen](http://www.doxygen.org/) - Documentation generation tool
-* [graphviz](http://www.graphviz.org/) - Graph visualization software
 
 ### Install
 
 Get the code:
 
-    git clone https://github.com/wjwwood/serial.git
+    git clone https://github.com/GoLeRobotics/serial.git
 
 Build:
 
-    make
-
-Build and run the tests:
-
-    make test
-
-Build the documentation:
-
-    make doc
+    mkdir build
+    cd build
+    cmake ..
+    make -j4
 
 Install:
 
-    make install
+    sudo make install
+    # or
+    sudo checkinstall # if checkinstall is installed via apt
+
+### Reference from another CMake Project
+```
+find_library(LIBSERIAL serial)
+
+add_executable(<PROJ_NAME> <PROJ_SOURCE>)
+target_link_libraries(<PROJ_NAME> LIBSERIAL)
+```
+
 
 ### License
 
-[The MIT License](LICENSE)
+[The MIT License](LICENSE) - Original License by W. Woodall
 
 ### Authors
 
 William Woodall <wjwwood@gmail.com>
 John Harrison <ash.gti@gmail.com>
+-- CMake modification part: Hosik Chae <hosik@golerobotics.com>
 
 ### Contact
 
